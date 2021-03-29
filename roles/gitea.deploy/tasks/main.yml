@@ -1,0 +1,119 @@
+---
+- name: Ensure gitea.io app folder exists.
+  file: 
+    path: "{{ gitea_app_location }}" 
+    state: directory
+    
+- name: Ensure tmp app folder exists.
+  file: 
+    path: "/tmp/gitea-{{ gitea_version }}" 
+    state: directory
+    
+- name: Check if 'git' is presents and updated.
+  yum:
+    name: "git"
+    state: present
+    
+- name: Download gitea.
+  get_url:
+    url: "https://dl.gitea.io/gitea/{{ gitea_version }}/gitea-{{ gitea_version }}-linux-amd64"
+    dest: "/tmp/gitea-{{ gitea_version }}/gitea-{{ gitea_version }}"
+    checksum: "{{ gitea_checksum }}"
+    
+- name: Copy gitea file into /usr/local/bin
+  copy:
+    remote_src: true
+    src: "/tmp/gitea-{{ gitea_version }}/gitea-{{ gitea_version }}"
+    dest: "/usr/local/bin/gitea"
+    owner: root
+    group: root
+    mode: '0751'    
+
+- name: Create Group "{{ gitea_linux_user }}".
+  group:
+    name: "{{ gitea_linux_user }}"
+    gid: 1001
+    system: yes
+    state: present
+
+- name: Create User "{{ gitea_linux_user }}"
+  user:
+    name: "{{ gitea_linux_user }}"
+    group: "{{ gitea_linux_user }}"
+    password: "{{ gitea_linux_user_password }}"
+    home: "/home/{{ gitea_linux_user }}"
+    uid: 1001
+    append: yes
+    system: yes
+    create_home: yes
+    shell: /bin/bash
+    state: present
+    update_password: on_create
+    
+- name: Create tmp dir
+  become: true
+  file:
+    path: "/home/{{ item }}"
+    owner: "{{ gitea_linux_user }}"
+    group: "root"
+    mode: 0777
+    state: directory
+  loop:
+    - "{{ gitea_linux_user }}/.ansible"
+    - "{{ gitea_linux_user }}/.ansible/tmp"
+
+    
+- name: Create required directories for gitea.
+  file:
+    path: "{{ gitea_app_location }}/{{ item }}"
+    owner: "{{ gitea_linux_user }}"
+    group: "{{ gitea_linux_user }}"
+    mode: 0750
+    state: directory
+  loop:
+    - custom
+    - data
+    - log
+    - indexers
+    
+- name: Create /etc/gitea directory.
+  file:
+    path: /etc/gitea
+    owner: root
+    group: "{{ gitea_linux_user }}"
+    mode: 0770
+    state: directory
+    
+- name: Copy gitea.service into /etc/systmd/system.
+  template:
+    src: "templates/gitea.service.j2"
+    dest: "/usr/lib/systemd/system/gitea.service"
+    owner: root
+    group: root
+    mode: 0644
+    
+- name: Check if 'app.ini' already exists.
+  file:
+    path: "/etc/gitea/app.ini"
+    state: absent
+  check_mode: yes
+  register: app_ini
+
+- name: Copy app.ini into /etc/gitea if it`s not exists.
+  template:
+    src: "templates/app.ini.j2"
+    dest: "/etc/gitea/app.ini"
+    owner: root
+    group: "{{ gitea_linux_user }}"
+    mode: 0770
+  when: app_ini.changed == false
+
+- name: Start gitea service.
+  systemd: 
+    name: gitea.service
+    state: started
+    daemon_reload: yes
+    enabled: yes
+    
+- name: Wait for gitea service.
+  pause: { seconds: 5 }

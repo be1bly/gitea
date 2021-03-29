@@ -1,0 +1,53 @@
+---
+- name: Check, if user '{{ usrs_item.gitea_user }}' already exists.
+  uri:
+    method: GET
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/users/{{ usrs_item.gitea_user }}?access_token={{ token.json.sha1 }}"
+    status_code:
+      - 200
+      - 404
+  register: user_exists
+
+- name: Create user '{{ usrs_item.gitea_user }}'.
+  uri:
+    method: POST
+    body_format: json
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/admin/users?access_token={{ token.json.sha1 }}"
+    body: >
+          { 
+            "email": "{{ usrs_item.gitea_mail }}",
+            "full_name": "{{ usrs_item.gitea_full }}",
+            "login_name": "{{ usrs_item.gitea_user }}",
+            "password": "{{ usrs_item.gitea_pswd }}",
+            "username": "{{ usrs_item.gitea_user }}",
+          }
+    status_code:
+      - 201
+  when: user_exists.status == 404
+
+- name: Get list of the teams.
+  uri:
+    method: GET
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/orgs/{{ item.gitea_org_name }}/teams?access_token={{ token.json.sha1 }}"
+    status_code:
+      - 200
+  register: team_exists
+
+- name: Search, if team '{{ usrs_item.gitea_user_team }}' exists.
+  set_fact: { user_team: "{{ team_loop }}" }
+  loop: "{{ team_exists | json_query(temporary) }}"
+  vars: { temporary: "json[?name=='{{ usrs_item.gitea_user_team }}'].{name: name, id: id}" }
+  loop_control: { loop_var: team_loop }
+  no_log: true
+
+
+- name: Move user '{{ usrs_item.gitea_user }}' to team '{{ user_team.name }}'
+  uri:
+    method: PUT
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/teams/{{ user_team.id }}/members/{{ usrs_item.gitea_user }}?access_token={{ token.json.sha1 }}"
+    status_code:
+      - 204

@@ -1,0 +1,29 @@
+---
+- name: Delete token if it`s already exists.
+  uri:
+    method: DELETE
+    return_content: true
+    force_basic_auth: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/users/{{ gitea_admin_user }}/tokens/{{ gitea_admin_token_name }}"
+    user: "{{ gitea_admin_user }}"
+    password: "{{ gitea_admin_password }}"
+    status_code:
+      - 204
+      - 404
+
+- name: Create admin`s token for API usage.
+  uri:
+    method: POST
+    body_format: json
+    return_content: true
+    force_basic_auth: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/users/{{ gitea_admin_user }}/tokens"
+    body: { "Name": "{{ gitea_admin_token_name }}"}
+    user: "{{ gitea_admin_user }}"
+    password: "{{ gitea_admin_password }}"
+    status_code:
+      - 201
+  register: token
+
+- include_tasks: add_org.yml
+  with_items: "{{ gitea_orgs }}"

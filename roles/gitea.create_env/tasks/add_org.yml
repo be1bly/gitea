@@ -1,0 +1,50 @@
+---
+- name: Check, if orgamization already exists.
+  uri:
+    method: GET
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/orgs/{{ item.gitea_org_name }}?access_token={{ token.json.sha1 }}"
+    status_code:
+      - 200
+      - 404
+  register: org_exists
+    
+- name: Create organization.
+  uri:
+    method: POST
+    body_format: json
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/orgs?access_token={{ token.json.sha1 }}"
+    body: >
+      { 
+        "description": "{{ item.gitea_org_dscr }}",
+        "full_name": "{{ item.gitea_org_name }}",
+        "username": "{{ item.gitea_org_name }}",
+        "visibility": "{{ item.gitea_org_vsbl }}",
+        "website": "{{ item.gitea_org_webs }}"
+      }
+    status_code:
+      - 201
+      - 422
+  when: org_exists.status == 404
+
+- include_tasks: add_team.yml
+  with_items: "{{ gitea_org_team }}"
+  loop_control:
+    loop_var: team_item
+  when: item.gitea_org_name == team_item.gitea_org_name
+  no_log: true
+
+- include_tasks: add_repos.yml
+  with_items: "{{ gitea_orgs_repos }}"
+  loop_control:
+    loop_var: repos_item  
+  when: item.gitea_org_name == repos_item.gitea_org_name
+  no_log: true
+
+- include_tasks: add_users.yml
+  with_items: "{{ gitea_usrs }}"   
+  loop_control:
+    loop_var: usrs_item
+  when: item.gitea_org_name == usrs_item.gitea_org_name
+  no_log: true

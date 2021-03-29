@@ -1,0 +1,52 @@
+---
+- name: Check, if repo '{{ repos_item.gitea_repo }}' exists and presents in '{{ item.gitea_org_name }}' organization.
+  uri:
+    method: GET
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/repos/{{ item.gitea_org_name }}/{{ repos_item.gitea_repo }}?access_token={{ token.json.sha1 }}"
+    status_code:
+      - 200
+      - 404
+  register: repo_presents
+
+- name: Create repo '{{ repos_item.gitea_repo }}' for '{{ item.gitea_org_name }}' organization.
+  uri:
+    method: POST
+    body_format: json
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/orgs/{{ item.gitea_org_name }}/repos?access_token={{ token.json.sha1 }}"
+    body: >
+      { 
+        "default_branch": "{{ repos_item.gitea_repo_def_br }}",
+        "description": "{{ repos_item.gitea_repo_dscr }}",
+        "name": "{{ repos_item.gitea_repo }}",
+        "private": {{ repos_item.gitea_repo_priv }},
+        "template": {{ repos_item.gitea_repo_tmpl }}
+      }
+    status_code:
+      - 201
+  when: repo_presents.status == 404
+
+- name: Get list of the teams.
+  uri:
+    method: GET
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/orgs/{{ item.gitea_org_name }}/teams?access_token={{ token.json.sha1 }}"
+    status_code:
+      - 200
+  register: team_exists
+
+- name: Search, if team '{{ repos_item.gitea_repo_for }}' exists.
+  set_fact: { user_team: "{{ team_loop }}" }
+  loop: "{{ team_exists | json_query(temporary) }}"
+  vars: { temporary: "json[?name=='{{ repos_item.gitea_repo_for }}'].{name: name, id: id}" }
+  loop_control: { loop_var: team_loop }
+  no_log: true
+
+- name: Add repo '{{ repos_item.gitea_repo }}' to team '{{ user_team.name }}'
+  uri:
+    method: PUT
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/teams/{{ user_team.id }}/repos/{{ item.gitea_org_name }}/{{ repos_item.gitea_repo }}?access_token={{ token.json.sha1 }}"
+    status_code:
+      - 204

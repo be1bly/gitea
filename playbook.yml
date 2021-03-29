@@ -1,0 +1,31 @@
+---
+- hosts: all
+  become: yes
+  
+  vars_files:
+    - vars.yml
+    
+  pre_tasks:
+
+    - name: Check vboxadd service status.
+      service:
+        name: vboxadd-service
+      register: vboxadd_status
+      
+    - name: Check vbox version
+      shell: "modinfo vboxguest | awk '/^version:/ {print $2}'"
+      register: vbguest_version
+      when: vboxadd_status.status.ActiveState == "active"
+  
+    - name: Check postgresql service status.
+      service:
+        name: postgresql-{{ postgresql_version }}.service
+      register: postgresql_status
+
+  roles:
+    - { role: copy.id_rsa }
+    - { role: vbox.install, when: vboxadd_status.status.ActiveState == "inactive" or vbguest_version.stdout != vbox_addition_ver }
+    - { role: gitea.postgresql, when: postgresql_status.status.ActiveState == "inactive" }
+    - { role: gitea.deploy }
+    - { role: gitea.create_admin }
+    - { role: gitea.create_env }

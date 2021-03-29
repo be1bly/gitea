@@ -1,0 +1,54 @@
+---
+
+- name: Check if gitea admin '{{ gitea_admin_user }}' exists.
+  uri:
+    method: GET
+    return_content: true
+    force_basic_auth: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/users/{{ gitea_admin_user }}"
+    status_code:
+      - 200
+      - 404
+  register: gitea_admin_exists
+
+- name: Create gitea admin user.
+  become: yes
+  become_user: gitea
+  shell: >
+    /usr/local/bin/gitea -c /etc/gitea/app.ini 
+    admin create-user 
+    --must-change-password=false 
+    --admin 
+    --username={{ gitea_admin_user }} 
+    --password={{ gitea_admin_password }} 
+    --email={{ gitea_admin_mail }}
+  register: gitea_admin_created
+  when: gitea_admin_exists.status == 404
+
+- name: Check, if necessary to change password.
+  become: yes
+  become_user: gitea
+  uri:  
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/admin/users"
+    method: GET
+    return_content: true
+    force_basic_auth: true
+    user: "{{ gitea_admin_user }}"
+    password: "{{ gitea_admin_password }}"
+    status_code:
+      - 200
+      - 403
+      - 404
+  register: change_password  
+  when: gitea_admin_created is defined and gitea_admin_created.changed == true
+
+- name: Change '{{ gitea_admin_user }}' password if necessary.  
+  become: yes
+  become_user: gitea
+  shell: >
+    /usr/local/bin/gitea -c /etc/gitea/app.ini 
+    admin change-password 
+    --username {{ gitea_admin_user }} 
+    --password {{ gitea_admin_password }}
+  register: change_password
+  when: change_password.msg is defined and change_password.status == 403

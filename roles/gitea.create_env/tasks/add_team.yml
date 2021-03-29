@@ -1,0 +1,39 @@
+---
+- name: Get list of the teams.
+  uri:
+    method: GET
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/orgs/{{ item.gitea_org_name }}/teams?access_token={{ token.json.sha1 }}"
+    status_code:
+      - 200
+  register: team_exists
+
+- name: Check, if team {{ team_item.team_name }} already exists (2/2).
+  set_fact: { team: "{{ team_loop }}" }
+  loop: "{{ team_exists | json_query(temporary) }}"
+  vars: { temporary: "json[?name=='{{ team_item.team_name }}'].{name: name, id: id}" }
+  loop_control: { loop_var: team_loop }
+  no_log: true
+
+- name: Create team '{{ team_item.team_name }}' if it`s not exists.
+  uri:
+    method: POST
+    body_format: json
+    return_content: true
+    url: "http://{{ gitea_domain }}:{{ gitea_web_port }}/api/v1/orgs/{{ item.gitea_org_name }}/teams?access_token={{ token.json.sha1 }}"
+    body: >
+      { 
+        "description": "{{ team_item.team_dscr }}",
+        "name": "{{ team_item.team_name }}",
+        "permission": "{{ team_item.team_perm }}",
+      }
+    status_code:
+      - 201
+      - 422
+  register: team_created
+  changed_when: team_created.status == 201
+  when: team.name is not defined and team.id is not defined
+  
+- name: Clear enviroment
+  set_fact:
+    team: []

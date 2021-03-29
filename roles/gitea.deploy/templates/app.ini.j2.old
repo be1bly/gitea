@@ -1,0 +1,640 @@
+APP_NAME = "Gitea: Git with a cup of tea"
+RUN_USER = {{ gitea_user }}
+RUN_MODE = prod
+
+[project]
+PROJECT_BOARD_BASIC_KANBAN_TYPE = To Do, In Progress, Done
+PROJECT_BOARD_BUG_TRIAGE_TYPE = Needs Triage, High Priority, Low Priority, Closed
+
+[repository]
+ROOT =
+SCRIPT_TYPE = bash
+DETECTED_CHARSETS_ORDER = UTF-8, UTF-16BE, UTF-16LE, UTF-32BE, UTF-32LE, ISO-8859, windows-1252, ISO-8859, windows-1250, ISO-8859, ISO-8859, ISO-8859, windows-1253, ISO-8859, windows-1255, ISO-8859, windows-1251, windows-1256, KOI8-R, ISO-8859, windows-1254, Shift_JIS, GB18030, EUC-JP, EUC-KR, Big5, ISO-2022, ISO-2022, ISO-2022, IBM424_rtl, IBM424_ltr, IBM420_rtl, IBM420_ltr
+ANSI_CHARSET =
+FORCE_PRIVATE = false
+DEFAULT_PRIVATE = last
+DEFAULT_PUSH_CREATE_PRIVATE = true
+MAX_CREATION_LIMIT = -1
+MIRROR_QUEUE_LENGTH = 1000
+PULL_REQUEST_QUEUE_LENGTH = 1000
+PREFERRED_LICENSES = Apache License 2.0,MIT License
+DISABLE_HTTP_GIT = false
+ACCESS_CONTROL_ALLOW_ORIGIN =
+USE_COMPAT_SSH_URI = false
+DEFAULT_CLOSE_ISSUES_VIA_COMMITS_IN_ANY_BRANCH = false
+ENABLE_PUSH_CREATE_USER = false
+ENABLE_PUSH_CREATE_ORG = false
+DISABLED_REPO_UNITS =
+DEFAULT_REPO_UNITS = repo.code,repo.releases,repo.issues,repo.pulls,repo.wiki,repo.projects
+PREFIX_ARCHIVE_FILES = true
+DISABLE_MIRRORS = false
+DISABLE_MIGRATIONS = false
+DEFAULT_BRANCH = master
+ALLOW_ADOPTION_OF_UNADOPTED_REPOSITORIES = false
+ALLOW_DELETION_OF_UNADOPTED_REPOSITORIES = false
+
+[repository.editor]
+LINE_WRAP_EXTENSIONS = .txt,.md,.markdown,.mdown,.mkd,
+PREVIEWABLE_FILE_MODES = markdown
+
+[repository.local]
+LOCAL_COPY_PATH = tmp/local-repo
+
+[repository.upload]
+ENABLED = true
+TEMP_PATH = data/tmp/uploads
+ALLOWED_TYPES =
+FILE_MAX_SIZE = 3
+MAX_FILES = 5
+
+[repository.pull-request]
+WORK_IN_PROGRESS_PREFIXES = WIP:,[WIP]
+CLOSE_KEYWORDS = close,closes,closed,fix,fixes,fixed,resolve,resolves,resolved
+REOPEN_KEYWORDS = reopen,reopens,reopened
+DEFAULT_MERGE_MESSAGE_COMMITS_LIMIT = 50
+DEFAULT_MERGE_MESSAGE_SIZE = 5120
+DEFAULT_MERGE_MESSAGE_ALL_AUTHORS = false
+DEFAULT_MERGE_MESSAGE_MAX_APPROVERS = 10
+DEFAULT_MERGE_MESSAGE_OFFICIAL_APPROVERS_ONLY = true
+
+[repository.issue]
+LOCK_REASONS = Too heated,Off-topic,Resolved,Spam
+
+[repository.release]
+ALLOWED_TYPES =
+
+[repository.signing]
+SIGNING_KEY = default
+SIGNING_NAME =
+SIGNING_EMAIL =
+DEFAULT_TRUST_MODEL = collaborator
+INITIAL_COMMIT = always
+CRUD_ACTIONS = pubkey, twofa, parentsigned
+WIKI = never
+MERGES = pubkey, twofa, basesigned, commitssigned
+
+[cors]
+ENABLED = false
+SCHEME = http
+ALLOW_DOMAIN = *
+ALLOW_SUBDOMAIN = false
+METHODS = GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS
+MAX_AGE = 10m
+ALLOW_CREDENTIALS = false
+
+[ui]
+EXPLORE_PAGING_NUM = 20
+ISSUE_PAGING_NUM = 10
+FEED_MAX_COMMIT_NUM = 5
+FEED_PAGING_NUM = 20
+GRAPH_MAX_COMMIT_NUM = 100
+CODE_COMMENT_LINES = 4
+THEME_COLOR_META_TAG = `#6cc644`
+MAX_DISPLAY_FILE_SIZE = 8388608
+SHOW_USER_EMAIL = true
+DEFAULT_THEME = gitea
+THEMES = gitea,arc-green
+REACTIONS = +1, -1, laugh, hooray, confused, heart, rocket, eyes
+DEFAULT_SHOW_FULL_NAME = false
+SEARCH_REPO_DESCRIPTION = true
+USE_SERVICE_WORKER = true
+
+[ui.admin]
+USER_PAGING_NUM = 50
+REPO_PAGING_NUM = 50
+NOTICE_PAGING_NUM = 25
+ORG_PAGING_NUM = 50
+
+[ui.user]
+REPO_PAGING_NUM = 15
+
+[ui.meta]
+AUTHOR = Gitea - Git with a cup of tea
+DESCRIPTION = Gitea (Git with a cup of tea) is a painless self-hosted Git service written in Go
+KEYWORDS = go,git,self-hosted,gitea
+
+[ui.notification]
+MIN_TIMEOUT = 10s
+MAX_TIMEOUT = 60s
+TIMEOUT_STEP = 10s
+EVENT_SOURCE_UPDATE_TIME = 10s
+
+[ui.svg]
+ENABLE_RENDER = true
+
+[markdown]
+ENABLE_HARD_LINE_BREAK_IN_COMMENTS = true
+ENABLE_HARD_LINE_BREAK_IN_DOCUMENTS = false
+CUSTOM_URL_SCHEMES =
+FILE_EXTENSIONS = .md,.markdown,.mdown,.mkd
+
+[server]
+PROTOCOL = http
+DOMAIN = {{ gitea_domain }}
+ROOT_URL = %(PROTOCOL)s://%(DOMAIN)s:%(HTTP_PORT)s/
+STATIC_URL_PREFIX =
+HTTP_ADDR = {{ ansible_eth1.ipv4.address }}
+HTTP_PORT = 8080
+REDIRECT_OTHER_PORT = false
+PORT_TO_REDIRECT = 80
+UNIX_SOCKET_PERMISSION = 666
+LOCAL_ROOT_URL = %(PROTOCOL)s://%(HTTP_ADDR)s:%(HTTP_PORT)s/
+DISABLE_SSH = false
+START_SSH_SERVER = false
+BUILTIN_SSH_SERVER_USER =
+SSH_DOMAIN = %(DOMAIN)s
+SSH_LISTEN_HOST =
+SSH_PORT = 22
+SSH_LISTEN_PORT = %(SSH_PORT)s
+SSH_ROOT_PATH =
+SSH_CREATE_AUTHORIZED_KEYS_FILE = true
+SSH_CREATE_AUTHORIZED_PRINCIPALS_FILE = true
+SSH_SERVER_CIPHERS = aes128-ctr, aes192-ctr, aes256-ctr, aes128-gcm@openssh.com, arcfour256, arcfour128
+SSH_SERVER_KEY_EXCHANGES = diffie-hellman-group1-sha1, diffie-hellman-group14-sha1, ecdh-sha2-nistp256, ecdh-sha2-nistp384, ecdh-sha2-nistp521, curve25519-sha256@libssh.org
+SSH_SERVER_MACS = hmac-sha2-256-etm@openssh.com, hmac-sha2-256, hmac-sha1, hmac-sha1-96
+SSH_SERVER_HOST_KEYS=ssh/gitea.rsa, ssh/gogs.rsa
+SSH_KEY_TEST_PATH =
+SSH_KEYGEN_PATH = ssh-keygen
+SSH_AUTHORIZED_KEYS_BACKUP = true
+SSH_AUTHORIZED_PRINCIPALS_ALLOW = email, username
+SSH_AUTHORIZED_PRINCIPALS_BACKUP = true
+SSH_TRUSTED_USER_CA_KEYS =
+SSH_TRUSTED_USER_CA_KEYS_FILENAME =
+SSH_EXPOSE_ANONYMOUS = false
+MINIMUM_KEY_SIZE_CHECK = false
+OFFLINE_MODE = false
+DISABLE_ROUTER_LOG = false
+CERT_FILE = https/cert.pem
+KEY_FILE = https/key.pem
+STATIC_ROOT_PATH =
+APP_DATA_PATH = data
+ENABLE_GZIP = false
+ENABLE_PPROF = false
+PPROF_DATA_PATH = data/tmp/pprof
+LANDING_PAGE = home
+LFS_START_SERVER = false
+LFS_CONTENT_PATH = data/lfs
+LFS_JWT_SECRET =
+LFS_HTTP_AUTH_EXPIRY = 20m
+LFS_MAX_FILE_SIZE = 0
+LFS_LOCKS_PAGING_NUM = 50
+ALLOW_GRACEFUL_RESTARTS = true
+GRACEFUL_HAMMER_TIME = 60s
+STARTUP_TIMEOUT = 0
+STATIC_CACHE_TIME = 6h
+
+[ssh.minimum_key_sizes]
+ED25519 = 256
+ECDSA = 256
+RSA = 2048
+DSA = -1 
+
+[database]
+DB_TYPE = postgres
+HOST = 127.0.0.1:5432
+NAME = {{ gitea_database }}
+USER = {{ gitea_user }}
+PASSWD = `{{ gitea_database_passwd }}`
+SCHEMA =
+SSL_MODE = disable
+CHARSET = utf8mb4
+PATH = data/gitea.db
+SQLITE_TIMEOUT = 500
+ITERATE_BUFFER_SIZE = 50
+LOG_SQL = true
+DB_RETRIES = 10
+DB_RETRY_BACKOFF = 3s
+MAX_IDLE_CONNS = 2
+CONN_MAX_LIFETIME = 3s
+MAX_OPEN_CONNS = 0
+
+[indexer]
+ISSUE_INDEXER_TYPE = bleve
+ISSUE_INDEXER_CONN_STR = http://elastic:changeme@localhost:9200
+ISSUE_INDEXER_NAME = gitea_issues
+ISSUE_INDEXER_PATH = indexers/issues.bleve
+ISSUE_INDEXER_QUEUE_TYPE = levelqueue
+ISSUE_INDEXER_QUEUE_DIR = indexers/issues.queue
+ISSUE_INDEXER_QUEUE_CONN_STR = "addrs=127.0.0.1:6379 db=0"
+ISSUE_INDEXER_QUEUE_BATCH_NUMBER = 20
+STARTUP_TIMEOUT = 30s
+
+REPO_INDEXER_ENABLED = false
+REPO_INDEXER_TYPE = bleve
+REPO_INDEXER_PATH = indexers/repos.bleve
+REPO_INDEXER_CONN_STR =
+REPO_INDEXER_NAME = gitea_codes
+
+UPDATE_BUFFER_LEN = 20
+MAX_FILE_SIZE = 1048576
+REPO_INDEXER_INCLUDE =
+REPO_INDEXER_EXCLUDE =
+
+[queue]
+TYPE = persistable-channel
+DATADIR = queues/
+LENGTH = 20
+BATCH_LENGTH = 20
+CONN_STR = "addrs=127.0.0.1:6379 db=0"
+QUEUE_NAME = "_queue"
+SET_NAME = "_unique"
+WRAP_IF_NECESSARY = true
+MAX_ATTEMPTS = 10
+TIMEOUT = 15m30s
+WORKERS = 1
+MAX_WORKERS = 10
+BLOCK_TIMEOUT = 1s
+BOOST_TIMEOUT = 5m
+BOOST_WORKERS = 5
+
+[admin]
+DISABLE_REGULAR_ORG_CREATION = false
+DEFAULT_EMAIL_NOTIFICATIONS = enabled
+
+[security]
+INSTALL_LOCK = false
+SECRET_KEY = !#@DFWEERRW&*(
+LOGIN_REMEMBER_DAYS = 7
+COOKIE_USERNAME = gitea_awesome
+COOKIE_REMEMBER_NAME = gitea_incredible
+REVERSE_PROXY_AUTHENTICATION_USER = X-WEBAUTH-USER
+REVERSE_PROXY_AUTHENTICATION_EMAIL = X-WEBAUTH-EMAIL
+REVERSE_PROXY_LIMIT = 1
+REVERSE_PROXY_TRUSTED_PROXIES = 127.0.0.0/8,::1/128
+MIN_PASSWORD_LENGTH = 6
+IMPORT_LOCAL_PATHS = false
+DISABLE_GIT_HOOKS = true
+DISABLE_WEBHOOKS = false
+ONLY_ALLOW_PUSH_IF_GITEA_ENVIRONMENT_SET = true
+PASSWORD_COMPLEXITY = off
+PASSWORD_HASH_ALGO = pbkdf2
+CSRF_COOKIE_HTTP_ONLY = true
+PASSWORD_CHECK_PWN = false
+
+[openid]
+ENABLE_OPENID_SIGNIN = true
+WHITELISTED_URIS =
+BLACKLISTED_URIS =
+
+[service]
+ACTIVE_CODE_LIVE_MINUTES = 180
+RESET_PASSWD_CODE_LIVE_MINUTES = 180
+REGISTER_EMAIL_CONFIRM = false
+REGISTER_MANUAL_CONFIRM = false
+EMAIL_DOMAIN_WHITELIST =
+EMAIL_DOMAIN_BLOCKLIST =
+DISABLE_REGISTRATION = false
+ALLOW_ONLY_EXTERNAL_REGISTRATION = false
+REQUIRE_SIGNIN_VIEW = false
+ENABLE_NOTIFY_MAIL = false
+ENABLE_BASIC_AUTHENTICATION = true
+ENABLE_REVERSE_PROXY_AUTHENTICATION = false
+ENABLE_REVERSE_PROXY_AUTO_REGISTRATION = false
+ENABLE_REVERSE_PROXY_EMAIL = false
+ENABLE_CAPTCHA = false
+CAPTCHA_TYPE = image
+RECAPTCHA_SECRET =
+RECAPTCHA_SITEKEY =
+HCAPTCHA_SECRET =
+HCAPTCHA_SITEKEY =
+RECAPTCHA_URL = https://www.google.com/recaptcha/
+DEFAULT_KEEP_EMAIL_PRIVATE = false
+DEFAULT_ALLOW_CREATE_ORGANIZATION = true
+DEFAULT_ORG_VISIBILITY = public
+DEFAULT_ORG_MEMBER_VISIBLE = false
+DEFAULT_ENABLE_DEPENDENCIES = true
+ALLOW_CROSS_REPOSITORY_DEPENDENCIES = true
+ENABLE_USER_HEATMAP = true
+ENABLE_TIMETRACKING = true
+DEFAULT_ENABLE_TIMETRACKING = true
+DEFAULT_ALLOW_ONLY_CONTRIBUTORS_TO_TRACK_TIME = true
+NO_REPLY_ADDRESS = noreply.%(DOMAIN)s
+SHOW_REGISTRATION_BUTTON = true
+SHOW_MILESTONES_DASHBOARD_PAGE = true
+AUTO_WATCH_NEW_REPOS = true
+AUTO_WATCH_ON_CHANGES = false
+USER_DELETE_WITH_COMMENTS_MAX_TIME = 0
+
+[webhook]
+QUEUE_LENGTH = 1000
+DELIVER_TIMEOUT = 5
+SKIP_TLS_VERIFY = false
+PAGING_NUM = 10
+PROXY_URL =
+PROXY_HOSTS =
+
+[mailer]
+ENABLED = false
+SEND_BUFFER_LEN = 100
+SUBJECT_PREFIX =
+HOST =
+DISABLE_HELO =
+HELO_HOSTNAME =
+SKIP_VERIFY = false
+USE_CERTIFICATE = false
+CERT_FILE = custom/mailer/cert.pem
+KEY_FILE = custom/mailer/key.pem
+IS_TLS_ENABLED = false
+FROM =
+USER =
+PASSWD =
+SEND_AS_PLAIN_TEXT = false
+MAILER_TYPE = smtp
+SENDMAIL_PATH = sendmail
+SENDMAIL_ARGS =
+SENDMAIL_TIMEOUT = 5m
+
+[cache]
+ENABLED = true
+ADAPTER = memory
+INTERVAL = 60
+HOST =
+ITEM_TTL = 16h
+
+[cache.last_commit]
+ENABLED = true
+ITEM_TTL = 8760h
+COMMITS_COUNT = 1000
+
+[session]
+PROVIDER = memory
+PROVIDER_CONFIG = data/sessions
+COOKIE_NAME = i_like_gitea
+COOKIE_SECURE = false
+GC_INTERVAL_TIME = 86400
+SESSION_LIFE_TIME = 86400
+SAME_SITE=lax
+
+[picture]
+AVATAR_UPLOAD_PATH = data/avatars
+REPOSITORY_AVATAR_UPLOAD_PATH = data/repo-avatars
+REPOSITORY_AVATAR_FALLBACK = none
+REPOSITORY_AVATAR_FALLBACK_IMAGE = /img/repo_default.png
+AVATAR_MAX_WIDTH = 4096
+AVATAR_MAX_HEIGHT = 3072
+AVATAR_MAX_FILE_SIZE = 1048576
+GRAVATAR_SOURCE = gravatar
+DISABLE_GRAVATAR = false
+ENABLE_FEDERATED_AVATAR = false
+
+[attachment]
+ENABLED = true
+ALLOWED_TYPES = .docx,.gif,.gz,.jpeg,.jpg,.log,.pdf,.png,.pptx,.txt,.xlsx,.zip
+MAX_SIZE = 4
+MAX_FILES = 5
+STORAGE_TYPE = local
+SERVE_DIRECT = false
+PATH = data/attachments
+MINIO_ENDPOINT = localhost:9000
+MINIO_ACCESS_KEY_ID =
+MINIO_SECRET_ACCESS_KEY =
+MINIO_BUCKET = gitea
+MINIO_LOCATION = us-east-1
+MINIO_BASE_PATH = attachments/
+MINIO_USE_SSL = false
+
+[time]
+FORMAT =
+DEFAULT_UI_LOCATION =
+
+[log]
+ROOT_PATH =
+MODE = console
+BUFFER_LEN = 10000
+ROUTER_LOG_LEVEL = Info
+ROUTER = console
+ENABLE_ACCESS_LOG = false
+ACCESS_LOG_TEMPLATE = {{ '{{' }}.Ctx.RemoteAddr{{ '}}' }} - {{ '{{' }}.Identity{{ '}}' }} {{ '{{' }}.Start.Format "[02/Jan/2006:15:04:05 -0700]" {{ '}}' }} "{{ '{{' }}.Ctx.Req.Method{{ '}}' }} {{ '{{' }}.Ctx.Req.URL.RequestURI{{ '}}' }} {{ '{{' }}.Ctx.Req.Proto{{ '}}' }}" {{ '{{' }}.ResponseWriter.Status{{ '}}' }} {{ '{{' }}.ResponseWriter.Size{{ '}}' }} "{{ '{{' }}.Ctx.Req.Referer{{ '}}' }}\" \"{{ '{{' }}.Ctx.Req.UserAgent{{ '}}' }}"
+ACCESS = file
+LEVEL = Info
+STACKTRACE_LEVEL = None
+
+[log.x]
+FLAGS = stdflags
+EXPRESSION =
+PREFIX =
+COLORIZE = false
+
+[log.console]
+LEVEL =
+STDERR = false
+
+[log.file]
+LEVEL =
+FILE_NAME =
+LOG_ROTATE = true
+MAX_SIZE_SHIFT = 28
+DAILY_ROTATE = true
+MAX_DAYS = 7
+COMPRESS = true
+COMPRESSION_LEVEL = -1
+
+[log.conn]
+LEVEL =
+RECONNECT_ON_MSG = false
+RECONNECT = false
+PROTOCOL = tcp
+ADDR =
+
+[log.smtp]
+LEVEL =
+SUBJECT = Diagnostic message from server
+HOST =
+USER =
+PASSWD =
+RECEIVERS =
+
+[cron]
+ENABLED = false
+RUN_AT_START = false
+
+
+[cron.archive_cleanup]
+ENABLED = true
+RUN_AT_START = true
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 24h
+OLDER_THAN = 24h
+
+[cron.update_mirrors]
+SCHEDULE = @every 10m
+ENABLED = true
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = true
+
+[cron.repo_health_check]
+SCHEDULE = @every 24h
+ENABLED = true
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+TIMEOUT = 60s
+ARGS =
+
+[cron.check_repo_stats]
+ENABLED = true
+RUN_AT_START = true
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 24h
+
+[cron.update_migration_poster_id]
+ENABLED = true
+RUN_AT_START = true
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 24h
+
+[cron.sync_external_users]
+ENABLED = true
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 24h
+UPDATE_EXISTING = true
+
+[cron.deleted_branches_cleanup]
+ENABLED = true
+RUN_AT_START = true
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 24h
+OLDER_THAN = 24h
+
+[cron.cleanup_hook_task_table]
+ENABLED = true
+RUN_AT_START = false
+SCHEDULE = @every 24h
+CLEANUP_TYPE = OlderThan
+OLDER_THAN = 168h
+NUMBER_TO_KEEP = 10
+
+
+[cron.delete_inactive_accounts]
+ENABLED = false
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @annually
+OLDER_THAN = 168h
+
+[cron.delete_repo_archives]
+ENABLED = false
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @annually
+
+[cron.git_gc_repos]
+ENABLED = false
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 72h
+TIMEOUT = 60s
+ARGS =
+
+[cron.resync_all_sshkeys]
+ENABLED = false
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 72h
+
+[cron.resync_all_hooks]
+ENABLED = false
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 72h
+
+[cron.reinit_missing_repos]
+ENABLED = false
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 72h
+
+[cron.delete_missing_repos]
+ENABLED = false
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 72h
+
+[cron.delete_generated_repository_avatars]
+ENABLED = false
+RUN_AT_START = false
+NO_SUCCESS_NOTICE = false
+SCHEDULE = @every 72h
+
+[git]
+PATH =
+DISABLE_DIFF_HIGHLIGHT = false
+MAX_GIT_DIFF_LINES = 1000
+MAX_GIT_DIFF_LINE_CHARACTERS = 5000
+MAX_GIT_DIFF_FILES = 100
+COMMITS_RANGE_SIZE = 50
+BRANCHES_RANGE_SIZE = 20
+GC_ARGS =
+ENABLE_AUTO_GIT_WIRE_PROTOCOL = true
+PULL_REQUEST_PUSH_MESSAGE = true
+
+[git.timeout]
+DEFAULT = 360
+MIGRATE = 600
+MIRROR = 300
+CLONE = 300
+PULL = 300
+GC = 60
+
+[mirror]
+DEFAULT_INTERVAL = 8h
+MIN_INTERVAL = 10m
+
+[api]
+ENABLE_SWAGGER = true
+MAX_RESPONSE_ITEMS = 50
+DEFAULT_PAGING_NUM = 30
+DEFAULT_GIT_TREES_PER_PAGE = 1000
+DEFAULT_MAX_BLOB_SIZE = 10485760
+
+[oauth2]
+ENABLE = true
+ACCESS_TOKEN_EXPIRATION_TIME = 3600
+REFRESH_TOKEN_EXPIRATION_TIME = 730
+INVALIDATE_REFRESH_TOKENS = false
+JWT_SECRET =
+MAX_TOKEN_LENGTH = 32767
+
+[i18n]
+LANGS = en-US,zh-CN,zh-HK,zh-TW,de-DE,fr-FR,nl-NL,lv-LV,ru-RU,uk-UA,ja-JP,es-ES,pt-BR,pt-PT,pl-PL,bg-BG,it-IT,fi-FI,tr-TR,cs-CZ,sr-SP,sv-SE,ko-KR
+NAMES = English,简体中文,繁體中文（香港）,繁體中文（台灣）,Deutsch,français,Nederlands,latviešu,русский,Українська,日本語,español,português do Brasil,Português de Portugal,polski,български,italiano,suomi,Türkçe,čeština,српски,svenska,한국어
+
+[U2F]
+
+[highlight.mapping]
+
+[other]
+SHOW_FOOTER_BRANDING = false
+SHOW_FOOTER_VERSION = true
+SHOW_FOOTER_TEMPLATE_LOAD_TIME = true
+
+[markup.sanitizer.1]
+
+[markup.asciidoc]
+ENABLED = false
+FILE_EXTENSIONS = .adoc,.asciidoc
+RENDER_COMMAND = "asciidoc --out-file=- -"
+IS_INPUT_FILE = false
+
+[metrics]
+ENABLED = false
+TOKEN =
+
+[task]
+QUEUE_TYPE = channel
+QUEUE_LENGTH = 1000
+QUEUE_CONN_STR = "addrs=127.0.0.1:6379 db=0"
+
+[migrations]
+MAX_ATTEMPTS = 3
+RETRY_BACKOFF = 3
+ALLOWED_DOMAINS =
+BLOCKED_DOMAINS =
+ALLOW_LOCALNETWORKS = false
+
+[storage]
+STORAGE_TYPE = local
+
+[lfs]
+STORAGE_TYPE = local
+

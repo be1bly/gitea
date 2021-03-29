@@ -1,0 +1,81 @@
+---
+- name: install updates
+  command: "yum update -y"
+  
+- name: Install dependencies
+  yum: 
+    state: present
+    name:
+    - gcc
+    - kernel-headers
+    - kernel-devel
+    - kernel-tools
+    
+- name: Reboot
+  reboot:
+    reboot_timeout: 300
+        
+- name: Create TMP directory for VBoxAdditions.
+  file:
+    path: /tmp/vboxadditions
+    state: directory
+      
+- name: Create MOUNT directory for VBoxAdditions.
+  file:
+    path: /media/vboxadditions
+    state: directory
+   
+- name: Download 'VBoxAdditions.iso'.
+  get_url: 
+    url: "https://download.virtualbox.org/virtualbox/{{ vbox_addition_ver }}/VBoxGuestAdditions_{{ vbox_addition_ver }}.iso"
+    dest: "/tmp/vboxadditions/"
+    checksum: "{{ vbox_addition_chksm }}"
+
+- name: Mount VBoxGuestAdditions.
+  mount:
+    path: "/media/vboxadditions/"
+    src: "/tmp/vboxadditions/VBoxGuestAdditions_{{ vbox_addition_ver }}.iso"
+    fstype: iso9660
+    opts: noauto
+    state: mounted
+
+- name: Build and install VBoxGuestAdditions from file.
+  shell: /media/vboxadditions/VBoxLinuxAdditions.run --nox11
+  ignore_errors: yes
+  
+- name: Unmount VBoxGuestAdditions
+  mount:
+    path: "/media/vboxadditions"
+    src: "/tmp/vboxadditions/VBoxGuestAdditions_{{ vbox_addition_ver }}.iso"
+    fstype: iso9660
+    opts: noauto
+    state: unmounted
+
+- name: Update vboxadd file.
+  copy: 
+    src: "app"
+    dest: "/opt/VBoxGuestAdditions-6.1.18/init"
+
+- name: Reboot VM.
+  reboot:
+    reboot_timeout: 300
+    
+- name: Check if vboxadd-service is running.
+  service:
+    name: vboxadd-service
+  register: vbox_service_stat
+    
+- name: Start vboxadd-service if it`s not running.
+  service:
+    name: vboxadd-service.service
+    state: started
+  when: "vbox_service_stat.status.ActiveState == 'inactive'"
+        
+- name: Remove temporary files, if everything`s fine.
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/tmp/vboxadditions"
+    - "/media/vboxadditions"
+  when: "vbox_service_stat.status.ActiveState == 'active'"

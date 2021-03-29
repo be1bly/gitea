@@ -1,0 +1,87 @@
+---
+local_id_rsa: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+vbox_addition_ver: 6.1.18
+vbox_addition_chksm: sha256:904432eb331d7ae517afaa4e4304e6492b7947b46ecb8267de7ef792c4921b4c
+
+postgresql_version: 12
+
+gitea_checksum: sha256:dc15430fe3eccc1f309051798a156361ed4c0ae7de90d83f1f904429a2838033
+gitea_app_location: "/opt/gitea"
+
+gitea_version: 1.13.4
+
+gitea_linux_user: gitea
+gitea_linux_user_password: $6$mysecretsalt$RI6vtp7JynBwyrMHmRxUU0icjLz7IXEki0QDb641KN2aQ78HvT13I1rQHLubpEuetNycfvUkFJce601cBGd34/
+gitea_secret_key: 9ZGeFPUrlHPvvxb84AO3ojjLM6qkKpJZOU4m4RByyzHrrtRknq3Cj0QvCGdAAM9P
+gitea_domain: "{{ ansible_eth1.ipv4.address }}"
+
+gitea_database: giteadb
+gitea_database_passwd: gitea
+
+gitea_web_protocol: http
+gitea_web_port: 8080
+
+gitea_admin_user: gitea_admin
+gitea_admin_mail: g.admin@example.com
+gitea_admin_password: Test_pass
+gitea_admin_token_name: token
+
+gitea_orgs: 
+  [
+    {
+      gitea_org_name: "example.com",
+      gitea_org_dscr: "example.com organization",
+      gitea_org_vsbl: "public",
+      gitea_org_webs: "www.example.org"
+    }
+  ]
+
+gitea_org_team: 
+  [
+    {
+      gitea_org_name: "example.com",
+      team_name: "testers",
+      team_dscr: "Team for Testers",
+      team_perm: "write"
+    },
+    {
+      gitea_org_name: "example.com",
+      team_name: "developers",
+      team_dscr: "Team for developers",
+      team_perm: "write"     
+    }
+  ]
+
+gitea_usrs: 
+  [
+    {
+      gitea_org_name: "example.com",
+      gitea_user_team: "developers",
+      gitea_user: "John_Doe",
+      gitea_full: "John Doe",
+      gitea_mail: "jdoe@example.com",
+      gitea_pswd: "jdoepsswd"
+    },
+    {
+      gitea_org_name: "example.com",
+      gitea_user_team: "developers",
+      gitea_user: "Mary_Smith",
+      gitea_full: "Mary Smith",
+      gitea_mail: "msmith@example.com",
+      gitea_pswd: "smthpsswd"
+    }
+  ]
+
+gitea_orgs_repos:
+  [
+    {
+      gitea_org_name: "example.com",
+      gitea_repo_for: "developers",
+      gitea_repo: "foobar",
+      gitea_repo_def_br: "master",
+      gitea_repo_dscr: "Repo for example.com organization",
+      gitea_repo_priv: "false",
+      gitea_repo_tmpl: "false",
+
+    }
+  ]

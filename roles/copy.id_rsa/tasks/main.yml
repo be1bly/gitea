@@ -1,0 +1,11 @@
+---
+- name: Check if your public key is already presents.
+  shell: cat /home/vagrant/.ssh/authorized_keys
+  register: auth_key
+
+- name: Copy your public key into remote hosts authorized_key file.
+  lineinfile:
+    path: "/home/vagrant/.ssh/authorized_keys"
+    line: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  when: auth_key.stdout.find(local_id_rsa) == -1
+    
